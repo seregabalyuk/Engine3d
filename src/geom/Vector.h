@@ -30,6 +30,13 @@ namespace geom { // Vector<T, N>
       _Axis(std::move(other.back))
     {}
 
+    template<class U, class Func>
+    Vector(
+      const Vector<U, N>& vec, 
+      Func func
+    ):_Parant(vec, func),
+     _Axis(Func::function(vec.back)) {}
+
     Vector() {}
 
     template<class... Args>
@@ -221,6 +228,20 @@ namespace geom { // helping compiler
 
 
 namespace geom { // functions
+  
+
+  template<class T, class U, size_t N>
+  Vector<T, N> to(const Vector<U, N>& vec) {
+    struct Preob {
+      static T function(const U& in) { return in; }
+    };
+    return Vector<T, N>(
+      vec, 
+      Preob()
+    );
+  }
+
+
   template<class T>
   math::Zero dot(
     const Vector<T, 0>& left, 

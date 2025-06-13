@@ -1,10 +1,9 @@
-#include <SDL2/SDL.h>
-
 #define DEBUG_TRAPEZOID
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/Trapezoid.h"
+#include "../src/eng3d/ContextOneColor.h"
 
-
+#include <SDL2/SDL.h>
 #include <thread>
 #include <chrono>
 #include <iostream>
@@ -52,16 +51,16 @@ int main() {
     SDL_FillRect(screen, NULL, 0);
     surface.draw(
       trapezoid, 
-      [](int x, int y){ 
-        return SDL_Color(255, 255, 255); 
-      }
+      eng3d::ContextOneColor(
+        SDL_Color(255, 255, 255) 
+      )
     );
 
     surface.draw(
       trapezoid2, 
-      [](int x, int y){ 
-        return SDL_Color(255, 0, 0); 
-      }
+      eng3d::ContextOneColor(
+        SDL_Color(255, 0, 0)
+      )
     );
     left += geom::Vector(1, 0);
     right += geom::Vector(1, 0);

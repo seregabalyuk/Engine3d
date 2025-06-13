@@ -25,6 +25,12 @@ namespace eng3d {
       return pixels[x + y * width];
     }
 
+    T* ptr(int x, int y) {
+      return pixels + (x + y * width);
+    }
+
+    T* ptr() { return pixels; }
+
     template<class U, class ...Args>
     void draw(const U& obj, Args&&... args) {
       obj.draw(*this, std::forward<Args>(args) ...);

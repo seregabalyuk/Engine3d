@@ -86,8 +86,14 @@ namespace eng3d {
           return;
         }
       }
-      geom::Line left(it_min[N-1], it_min[0]);
-      geom::Line right(it_min[1], it_min[0]);
+      geom::Line left(
+        geom::to<int>(it_min[N-1]), 
+        geom::to<int>(it_min[0])
+      );
+      geom::Line right(
+        geom::to<int>(it_min[1]), 
+        geom::to<int>(it_min[0])
+      );
       auto y_from = it_min->y;
       auto it_left = it_min + (N - 1);
       auto it_right = it_min + 1;
@@ -100,12 +106,18 @@ namespace eng3d {
           Trapezoid trap(y_from, y_to, left, right);
           trap.draw(surface, std::forward<Args>(args) ...);
           -- it_left;
-          left = geom::Line(it_left[0], it_left[1]);
+          left = geom::Line(
+            geom::to<int>(it_left[0]), 
+            geom::to<int>(it_left[1])
+          );
         } else {
           y_to = it_right->y;
           Trapezoid trap(y_from, y_to, left, right);
           trap.draw(surface, std::forward<Args>(args) ...);
-          right = geom::Line(it_right[1], it_right[0]);
+          right = geom::Line(
+            geom::to<int>(it_right[1]), 
+            geom::to<int>(it_right[0])
+          );
           ++ it_right;
         }
         y_from = y_to;

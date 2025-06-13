@@ -1,12 +1,12 @@
-#include <SDL2/SDL.h>
-
-#define DEBUG_STACKCONVEX
-#define DEBUG_TRAPEZOID
+//#define DEBUG_STACKCONVEX
+//#define DEBUG_TRAPEZOID
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/StackConvex.h"
+#include "../src/eng3d/ContextOneColor.h"
 #include "../src/geom/Matrix.h"
 
 
+#include <SDL2/SDL.h>
 #include <thread>
 #include <chrono>
 #include <cmath>
@@ -49,10 +49,10 @@ int main() {
     SDL_FillRect(screen, NULL, 0);
 
     surface.draw(
-      convex, 
-      [](int x, int y){ 
-        return SDL_Color(255, 0, 0); 
-      }
+      convex,
+      eng3d::ContextOneColor(
+        SDL_Color(255, 0, 0)
+      ) 
     );
     geom::Vector center(520.f, 240);
     float angle = 0.0003;
