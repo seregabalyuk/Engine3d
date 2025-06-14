@@ -31,6 +31,10 @@ namespace eng3d {
       );
     }
 
+    Point apply(const Point& point) const {
+      return (point - position) * matrix;
+    }
+
     static Point2 getByZ(
       const Point& A,
       const Point& B

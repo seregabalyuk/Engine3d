@@ -139,8 +139,17 @@ namespace geom { // Vector<T, N>
       return *this;
     }
 
-    auto sqrlength() const {
+    T sqrlength() const {
       return dot(*this, *this);
+    }
+
+    auto length() const {
+      return std::sqrt(sqrlength());
+    } 
+
+    Vector& normalize() & {
+      (*this) /= length();
+      return *this;
     }
   };
 } // namespace geom

@@ -1,8 +1,11 @@
-#include "../src/eng3d/Camera.h"
+// #define DEBUG_STACKCONVEX
+
 #include "../src/eng3d/SDL.h"
+#include "../src/eng3d/Camera.h"
 #include "../src/eng3d/ContextOneColor.h"
 
 #include <iostream>
+#include <vector>
 
 int main() {
   SDL_Init(SDL_INIT_EVERYTHING);
@@ -26,17 +29,39 @@ int main() {
 
   eng3d::Camera camera(1.f, 1.f, 1.f);
 
-  geom::Triangle triangle( 
-    geom::Vector(-0.5f, -0.5, 2),
-    geom::Vector(-0.5f, 0.5, 2),
-    geom::Vector(0.5f, -0.5, 2)
-  );
+  camera.position = geom::Vector(-2.f, -2, 0);
+  
+  std::vector<geom::Triangle<float, 3>> cube;
+  for (int i = 0; i < 3; ++ i) {
+    geom::Vector<float, 3> vec[4];
+    size_t j = 0;
+    for (auto x: std::vector{-1, 1}) {
+      for (auto y: std::vector{-1, 1}) {
+        vec[j][i] = 1;
+        vec[j][(i + 1) % 3] = x;
+        vec[j][(i + 2) % 3] = y;
+        ++ j;
+      }
+    }
+    cube.emplace_back(vec[0], vec[2], vec[1]);
+    cube.emplace_back(vec[1], vec[2], vec[3]);
+    j = 0;
+    for (auto x: std::vector{-1, 1}) {
+      for (auto y: std::vector{-1, 1}) {
+        vec[j][i] = -1;
+        vec[j][(i + 1) % 3] = x;
+        vec[j][(i + 2) % 3] = y;
+        ++ j;
+      }
+    }
+    cube.emplace_back(vec[0], vec[1], vec[2]);
+    cube.emplace_back(vec[2], vec[1], vec[3]);
+    
+  }
 
-  geom::Triangle triangle2( 
-    geom::Vector(-0.5f, -0.5, 2),
-    geom::Vector(-0.5f, 0.5, 2),
-    geom::Vector(0.5f, -0.5, 2)
-  );
+  std::vector<geom::Triangle<float, 3>> buf;
+  buf.resize(cube.size());
+
 
   int state = 1;
   auto mat = camera.matrix;
@@ -62,6 +87,13 @@ int main() {
     angleX += next.x - mousePos.x;
     angleY += next.y - mousePos.y;
     float coef = 0.02;
+    if (angleY * coef > M_PI) {
+      angleY = M_PI / coef;
+    }
+    if (angleY < 0) {
+      angleY = 0;
+    }
+    
     camera.matrix = mat;
     camera.matrix.rotate(0, 1, angleX * coef);
     camera.matrix.rotate(1, 2, angleY * coef);
@@ -105,49 +137,41 @@ int main() {
       static_cast<geom::Vector<float, 2>&>(camera.position) += vec;
     }
 
+    if (keystates[SDL_SCANCODE_SPACE]) {
+      camera.position.z += 0.001;
+    }
+
+    if (keystates[SDL_SCANCODE_LSHIFT]) {
+      camera.position.z -= 0.001;
+    }
+
 
     SDL_FillRect(screen, NULL, 0);
     
-    bool out = 0;
-    for (int i = 0; i < 3; ++ i) {
-      if ((1<<i) & state) {
-        triangle.points[i].z -= 0.0003f;
-      }
-      if (triangle.points[i].z < -2) {
-        out = true;
-      }
+    for (size_t i = 0; i < cube.size(); ++ i) {
+      buf[i] = camera.apply(cube[i]);
     }
-    if (out) {
-      ++ state;
-      for (int i = 0; i < 3; ++ i) {
-        triangle.points[i].z = 2;
-      }
-      if (state == 8) {
-        state = 1;
-      }
+    geom::Vector light(1.f, 0.5f, -1.7f);
+    light.normalize();
+    for (size_t i = 0; i < cube.size(); ++ i) {
+      auto normal = geom::cross(
+        cube[i].A - cube[i].B, 
+        cube[i].C - cube[i].B
+      );
+      normal.normalize();
+
+      float d = geom::dot(light, normal);
+      int color = std::max(0.f, d) * 127 + 128;
+      surface.draw(
+        camera,
+        buf[i],
+        eng3d::ContextOneColor(
+          SDL_Color(color, 0, 0)
+        )
+      );
     }
-
-    auto next_triangle2 = camera.apply(triangle2);
-    surface.draw(
-      camera, 
-      next_triangle2, 
-      eng3d::ContextOneColor(
-        SDL_Color(0, 255, 0)
-      )
-    );
-
-    auto next_triangle = camera.apply(triangle);
-    surface.draw(
-      camera, 
-      next_triangle, 
-      eng3d::ContextOneColor(
-        SDL_Color(0, 255, 255)
-      )
-    );
 
     
-    
-   
     SDL_UpdateWindowSurface(window);
   }
   SDL_DestroyWindow(window);

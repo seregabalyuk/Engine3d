@@ -4,7 +4,7 @@
 #include "matrix/LinkContainer.h"
 
 #include <utility>
-
+#include <cmath>
 
 namespace geom {
   template<
@@ -130,13 +130,29 @@ namespace geom {
       }
       return *this;
     }
-
+   // function
     Matrix& transpose() & {
       static_assert(N == M, "matrix is not square");
       for (size_t i = 0; i < N; ++ i) {
         for (size_t j = i + 1; j < M; ++ j) {
           std::swap((*this)(i, j), (*this)(j, i));
         }
+      }
+      return *this;
+    }
+    
+    Matrix& rotate(
+      size_t AxisX,
+      size_t AxisY,
+      const T& angle
+    ) & {
+      for (size_t i = 0; i < N; ++ i) {
+        T x = (*this)(i, AxisX);
+        T y = (*this)(i, AxisY);
+        T sin = std::sin(angle);
+        T cos = std::cos(angle);
+        (*this)(i, AxisX) = x * cos - y * sin;
+        (*this)(i, AxisY) = x * sin + y * cos;
       }
       return *this;
     }
@@ -260,7 +276,7 @@ namespace geom { // operators
 } // namespace geom
 
 
-namespace geom {
+namespace geom { // functions
   template<class T, class Con>
   auto det(const Matrix<T, 3, 3, Con>& m) {
     return 
