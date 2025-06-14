@@ -17,7 +17,7 @@ int main() {
 
   SDL_Init(SDL_INIT_EVERYTHING);
   auto window = SDL_CreateWindow(
-    "cube",
+    "loader",
     SDL_WINDOWPOS_UNDEFINED, 
     SDL_WINDOWPOS_UNDEFINED,
     1920, 
