@@ -124,5 +124,48 @@ namespace eng3d {
       }
       return out;
     }
+
+    template<class Pixel,class...Args>
+    static void draw(
+      Surface<Pixel>& surface,
+      const Triangle& triangle,
+      Args&&... args
+    ) {
+      geom::Vector<float, 2> points[4];
+      int count = project(triangle, points);
+      if (count == 3) {
+        auto& convex = reinterpret_cast<
+          eng3d::StackConvex<float, 3>&
+        >(points);
+        convex += geom::Vector(1.f, 1.f);
+        float w = surface.width / 2;
+        float h = surface.height / 2;
+        for(auto& point: convex) {
+          point.x *= w;
+          point.y *= h;
+        }
+        convex.normalizeLight();      
+        surface.draw(
+          convex,
+          std::forward<Args>(args)...
+        );
+      } else if (count == 4) {
+        auto& convex = reinterpret_cast<
+          eng3d::StackConvex<float, 4>&
+        >(points);
+        convex += geom::Vector(1.f, 1.f);
+        float w = surface.width / 2;
+        float h = surface.height / 2;
+        for(auto& point: convex) {
+          point.x *= w;
+          point.y *= h;
+        }
+        convex.normalizeLight();      
+        surface.draw(
+          convex,
+          std::forward<Args>(args)...
+        );
+      }
+    }
   };
 }

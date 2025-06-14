@@ -65,45 +65,13 @@ int main() {
     }
 
     auto next_triangle = camera.apply(triangle);
-    geom::Vector<float, 2> points[4];
-    int s = camera.project(next_triangle, points);
-    if (s == 3) {
-      auto& convex = reinterpret_cast<
-        eng3d::StackConvex<float, 3>&
-      >(points);
-      convex += geom::Vector(1.f, 1.f);
-      float w = surface.width / 2;
-      float h = surface.height / 2;
-      for(auto& point: convex) {
-        point.x *= w;
-        point.y *= h;
-      }
-      convex.normalizeLight();      
-      surface.draw(
-        convex,
-        eng3d::ContextOneColor(
-          SDL_Color(0, 255, 255)
-        )
-      );
-    } else if (s == 4) {
-      auto& convex = reinterpret_cast<
-        eng3d::StackConvex<float, 4>&
-      >(points);
-      convex += geom::Vector(1.f, 1.f);
-      float w = surface.width / 2;
-      float h = surface.height / 2;
-      for(auto& point: convex) {
-        point.x *= w;
-        point.y *= h;
-      }
-      convex.normalizeLight();      
-      surface.draw(
-        convex,
-        eng3d::ContextOneColor(
-          SDL_Color(0, 255, 255)
-        )
-      );
-    }
+    surface.draw(
+      camera, 
+      next_triangle, 
+      eng3d::ContextOneColor(
+        SDL_Color(0, 255, 255)
+      )
+    );
     
    
     SDL_UpdateWindowSurface(window);

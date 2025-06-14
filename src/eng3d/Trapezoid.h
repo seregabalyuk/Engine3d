@@ -28,7 +28,7 @@ namespace eng3d {
     template<class Pixel>
     void draw(
       Surface<Pixel>& surface,
-      auto context
+      auto&& context
     ) const {
       int _y_begin = std::max(0, y_begin);
       int _y_end = std::min(y_end, surface.height);
