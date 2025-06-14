@@ -31,7 +31,7 @@ namespace eng3d {
       std::reverse(it_min, end());
       std::reverse(begin(), it_min);
       // Need delete
-      if (N > 3) {
+      if (N >= 3) {
         auto& A = begin()[0];
         auto& B = begin()[1];
         auto& C = begin()[2];
@@ -39,6 +39,18 @@ namespace eng3d {
           std::reverse(begin() + 1, end());
         }
       }
+    }
+
+    void normalizeLight() {
+      auto it_min = begin();
+      for (auto& point: *this) {
+        if (point.y < it_min->y) {
+          it_min = &point;
+        }
+      }
+      ++ it_min;
+      std::reverse(it_min, end());
+      std::reverse(begin(), it_min);
     }
 
     Point* end() {

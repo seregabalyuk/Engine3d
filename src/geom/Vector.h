@@ -3,6 +3,7 @@
 #include "Axis.h"
 #include "../traits/GetFromPack.h"
 #include "../math/Zero.h"
+#include "Matrix.h"
 
 #include <type_traits>
 
@@ -80,6 +81,22 @@ namespace geom { // Vector<T, N>
     Vector& operator *=(const T& scalar) & {
       back *= scalar;
       parant() *= scalar;
+      return *this;
+    }
+
+    template<class Con>
+    Vector& operator *=(
+      const Matrix<T, N, N, Con>& matrix
+    ) & {
+      (*this) = (*this) * matrix;
+      return *this;
+    }
+
+    template<class Con>
+    Vector& rev_mul(
+      const Matrix<T, N, N, Con>& matrix
+    ) & {
+      (*this) = matrix * (*this);
       return *this;
     }
 
@@ -205,6 +222,37 @@ namespace geom { // operators +-*/
     Vector<T, N> ret = right;
     return ret.rev_mul(left);
   }
+
+  template<class T, size_t N, size_t M, class Con>
+  Vector<T, M> operator *(
+    const Vector<T, N>& left,
+    const Matrix<T, N, M, Con>& right
+  ) {
+    Vector<T, M> ret;
+    for (size_t j = 0; j < M; ++ j) {
+      ret[j] = left[0] * right(0, j);
+      for (size_t i = 1; i < N; ++ i) {
+        ret[j] += left[i] * right(i, j);
+      }
+    }
+    return ret;
+  }
+
+  template<class T, size_t N, size_t M, class Con>
+  Vector<T, N> operator *(
+    const Matrix<T, N, M, Con>& left,
+    const Vector<T, M>& right
+  ) {
+    Vector<T, N> ret;
+    for (size_t j = 0; j < N; ++ j) {
+      ret[j] = left(j, 0) * right[0];
+      for (size_t i = 1; i < M; ++ i) {
+        ret[j] += left(j, i) * right[i];
+      }
+    }
+    return ret;
+  }
+
 
   template<class T, size_t N>
   Vector<T, N> operator / (

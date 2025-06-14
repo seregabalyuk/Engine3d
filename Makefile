@@ -42,22 +42,22 @@ $(DIRLOGS):
 	@mkdir -p $(DIRLOGS)
 
 # debs
-$(DIRBUILD)/%.d: $(DIRTESTS)/%.cpp
+$(DIRBUILD)/%.d: $(DIRTESTS)/%.cpp $(DIRBUILD)
 	@$(COMPILERCPP) -MM -MT $(patsubst $(DIRTESTS)/%.cpp,$(DIRBUILD)/%.o,$<) $< $(FLAGS) > $@
 	@$(COMPILERCPP) -MM -MT $(patsubst $(DIRTESTS)/%.cpp,$(DIRBUILD)/%.d,$<) $< $(FLAGS) >> $@
 	@echo "$(STRDONE) \033[95m$@\033[0m"
 
 # other
-$(DIRBUILD)/%.o: $(DIRTESTS)/%.cpp
+$(DIRBUILD)/%.o: $(DIRTESTS)/%.cpp $(DIRBUILD) 
 	@$(COMPILERCPP) -c $< -o $@ $(FLAGS)
 	@echo "$(STRDONE) \033[95m$@\033[0m"
 
-$(DIRBIN)/%.exe: $(DIRBUILD)/%.o
+$(DIRBIN)/%.exe: $(DIRBUILD)/%.o $(DIRBIN)
 	@$(COMPILERCPP) $< -o $@ $(FLAGS) $(LIBS)
 	@echo "$(STRDONE) \033[96m$@\033[0m"
 
 #test
-$(DIRLOGS)/%.txt: $(DIRBIN)/%.exe
+$(DIRLOGS)/%.txt: $(DIRBIN)/%.exe $(DIRLOGS) 
 	@$< >> $@
 	@touch $@
 	@echo "$(STRTESTED) $<"
