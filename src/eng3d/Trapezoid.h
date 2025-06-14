@@ -80,17 +80,46 @@ namespace eng3d {
         ) {
           *it = context.getColor();
         }
+        #ifdef DEBUG_TRAPEZOID
+          *it_begin = COLOR(0, 0, 255);
+          *(it_end - 1) = COLOR(0, 0, 255);
+        #endif
       }
 
+      #ifdef DEBUG_TRAPEZOID_LONGLINES
+      {
+        auto pixels_from = surface.ptr() + _y_begin * surface.width;
+        auto pixels_to = pixels_from + surface.width;
+        for(auto it = pixels_from; it < pixels_to; ++ it)
+          *it = COLOR(0, 255, 0);
+
+        pixels_from = surface.ptr() + _y_end * surface.width;
+        pixels_to = pixels_from + surface.width;
+        for(auto it = pixels_from; it < pixels_to; ++ it)
+          *it = COLOR(0, 0, 255);
+      }
+      #endif
+
       #ifdef DEBUG_TRAPEZOID
-      auto pixels_from = surface.ptr() + _y_begin * surface.width;
-      auto pixels_to = pixels_from + surface.width;
-      for(auto it = pixels_from; it < pixels_to; ++ it)
-        *it = COLOR(0, 255, 0);
-      pixels_from = surface.ptr() + _y_end * surface.width;
-      pixels_to = pixels_from + surface.width;
-      for(auto it = pixels_from; it < pixels_to; ++ it)
-        *it = COLOR(0, 0, 255);
+      {
+        int _x_begin = std::max((int)left->x(_y_begin) , 0);
+        int _x_end = std::min((int)right->x(_y_begin), surface.width);
+        auto pixels_from = surface.ptr() + 
+          _y_begin * surface.width;
+        auto pixels_to = pixels_from + _x_end;
+        pixels_from += _x_begin;
+        for(auto it = pixels_from; it < pixels_to; ++ it)
+          *it = COLOR(0, 0, 255);
+        
+        _x_begin = std::max((int)left->x(_y_end - 1) , 0);
+        _x_end = std::min((int)right->x(_y_end - 1), surface.width);
+        pixels_from = surface.ptr() + 
+          (_y_end - 1) * surface.width;
+        pixels_to = pixels_from + _x_end;
+        pixels_from += _x_begin;
+        for(auto it = pixels_from; it < pixels_to; ++ it)
+          *it = COLOR(0, 0, 255);
+      }
       #endif
     }
   };

@@ -1,5 +1,5 @@
 //#define DEBUG_STACKCONVEX
-//#define DEBUG_TRAPEZOID
+#define DEBUG_TRAPEZOID
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/StackConvex.h"
 #include "../src/eng3d/ContextOneColor.h"

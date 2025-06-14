@@ -51,6 +51,15 @@ namespace eng3d {
       const Triangle& triangle,
       Point2 (&convex)[4]
     ) {
+      #ifdef NO_CLIPPING
+      convex[0] = triangle.A;
+      convex[1] = triangle.B;
+      convex[2] = triangle.C;
+      convex[0] /= triangle.A.z;
+      convex[1] /= triangle.B.z;
+      convex[2] /= triangle.C.z;
+      return 3;
+      #endif
       size_t out;
       const auto& A = triangle.A;
       const auto& B = triangle.B;

@@ -1,4 +1,4 @@
-#define DEBUG_TRAPEZOID
+#define DEBUG_TRAPEZOID_LONGLINES
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/Trapezoid.h"
 #include "../src/eng3d/ContextOneColor.h"

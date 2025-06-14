@@ -1,4 +1,6 @@
 // #define DEBUG_STACKCONVEX
+// #define NO_CLIPPING
+#define DEBUG_TRAPEZOID
 
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/Camera.h"
@@ -28,6 +30,7 @@ int main() {
   SDL_GetMouseState(&mousePos.x, &mousePos.y);
 
   eng3d::Camera camera(1.f, 16.f / 9.f, 1.f);
+  camera.matrix *= 10.f;
 
   camera.position = geom::Vector(-2.f, -2, 0);
   
