@@ -10,11 +10,11 @@
 int main() {
   SDL_Init(SDL_INIT_EVERYTHING);
   auto window = SDL_CreateWindow(
-    "test simple triangle",
+    "cube",
     SDL_WINDOWPOS_UNDEFINED, 
     SDL_WINDOWPOS_UNDEFINED,
-    640, 
-    480, 
+    1920, 
+    1080, 
     SDL_WINDOW_SHOWN
   );
   auto screen = SDL_GetWindowSurface(window);
@@ -27,7 +27,7 @@ int main() {
   geom::Vector<int, 2> mousePos(0, 0);
   SDL_GetMouseState(&mousePos.x, &mousePos.y);
 
-  eng3d::Camera camera(1.f, 1.f, 1.f);
+  eng3d::Camera camera(1.f, 16.f / 9.f, 1.f);
 
   camera.position = geom::Vector(-2.f, -2, 0);
   
@@ -95,8 +95,10 @@ int main() {
     }
     
     camera.matrix = mat;
-    camera.matrix.rotate(0, 1, angleX * coef);
-    camera.matrix.rotate(1, 2, angleY * coef);
+    //camera.matrix.transpose();
+    camera.matrix.rotate(1, 2, -angleY * coef);
+    camera.matrix.rotate(0, 1, -angleX * coef);
+    camera.matrix.transpose();
     mousePos = next;
 
     auto keystates = SDL_GetKeyboardState(NULL);
