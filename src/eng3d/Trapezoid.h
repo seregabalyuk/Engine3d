@@ -1,6 +1,5 @@
 #pragma once
 #include "../geom/Line.h"
-#include "Surface.h"
 
 #include <algorithm>
 
@@ -25,13 +24,13 @@ namespace eng3d {
       right(&right)
     {}
 
-    template<class Pixel>
+    template<class Surf>
     void draw(
-      Surface<Pixel>& surface,
+      Surf& surface,
       auto&& context
     ) const {
       int _y_begin = std::max(0, y_begin);
-      int _y_end = std::min(y_end, surface.height);
+      int _y_end = std::min(y_end, (int)surface.height);
       // cut y by left line
       if (left->B != 0) { 
         int _y_per = left->y(surface.width - 1);
@@ -57,32 +56,35 @@ namespace eng3d {
       }
       if (_y_begin >= _y_end) return;
 
-      auto pixels_y = surface.ptr() + _y_begin * surface.width;
+      auto surfCon = surface.context();
+      surfCon.setY(_y_begin);
       context.setY(_y_begin);
 
       for (
         int y = _y_begin; 
         y < _y_end; 
         ++ y, 
-        pixels_y += surface.width,
+        surfCon.incY(),
         context.incY()
       ) {
         int _x_begin = std::max((int)left->x(y) , 0);
-        int _x_end = std::min((int)right->x(y), surface.width);
-        auto it_begin = pixels_y + _x_begin;
-        auto it_end = pixels_y + _x_end;
+        int _x_end = std::min((int)right->x(y), (int)surface.width);
         context.setX(_x_begin);
+        surfCon.setX(_x_begin);
         for (
-          auto it = it_begin; 
-          it < it_end; 
-          ++ it, 
-          context.incX()
+          int x = _x_begin; 
+          x < _x_end; 
+          ++ x,
+          context.incX(),
+          surfCon.incX()
         ) {
-          *it = context.getColor();
+          surfCon.set(context);
         }
         #ifdef DEBUG_TRAPEZOID
-          *it_begin = COLOR(0, 0, 255);
-          *(it_end - 1) = COLOR(0, 0, 255);
+        if (_x_begin < _x_end) {
+          *surface.ptr(_x_begin, y) = COLOR(0, 0, 255);
+          *surface.ptr(_x_end - 1, y) = COLOR(0, 0, 255);
+        }
         #endif
       }
 
@@ -103,7 +105,7 @@ namespace eng3d {
       #ifdef DEBUG_TRAPEZOID
       {
         int _x_begin = std::max((int)left->x(_y_begin) , 0);
-        int _x_end = std::min((int)right->x(_y_begin), surface.width);
+        int _x_end = std::min((int)right->x(_y_begin), (int)surface.width);
         auto pixels_from = surface.ptr() + 
           _y_begin * surface.width;
         auto pixels_to = pixels_from + _x_end;
@@ -112,7 +114,7 @@ namespace eng3d {
           *it = COLOR(0, 0, 255);
         
         _x_begin = std::max((int)left->x(_y_end - 1) , 0);
-        _x_end = std::min((int)right->x(_y_end - 1), surface.width);
+        _x_end = std::min((int)right->x(_y_end - 1), (int)surface.width);
         pixels_from = surface.ptr() + 
           (_y_end - 1) * surface.width;
         pixels_to = pixels_from + _x_end;

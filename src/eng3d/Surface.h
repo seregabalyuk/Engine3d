@@ -4,10 +4,39 @@
 
 namespace eng3d {
   template<class T>
-  struct Surface {
+  class Surface {
+    class Context {
+      Surface* surface;
+      T* iter_y;
+      T* iter_x;
+     public:
+      Context(Surface* surface):
+        surface(surface) {}
+
+      void setY(size_t y) & {
+        iter_y = surface->ptr() + y * surface->width;
+      }
+      
+      void setX(size_t x) & {
+        iter_x = iter_y + x;
+      }
+
+      void incY() & {
+        iter_y += surface->width;
+      }
+
+      void incX() & {
+        ++ iter_x;
+      }
+      
+      void set(auto& context) & {
+        *iter_x = context.getColor();
+      }
+    };
+   public:
    // members
-    int width;
-    int height;
+    size_t width;
+    size_t height;
 
     T* pixels;
    // constructors
@@ -17,15 +46,15 @@ namespace eng3d {
       height(height)
     {}
 
-    T& operator()(int x, int y) {
+    T& operator()(size_t x, size_t y) {
       return pixels[x + y * width];
     }
 
-    const T& operator()(int x, int y) const {
+    const T& operator()(size_t x, size_t y) const {
       return pixels[x + y * width];
     }
 
-    T* ptr(int x, int y) {
+    T* ptr(size_t x, size_t y) {
       return pixels + (x + y * width);
     }
 
@@ -34,6 +63,10 @@ namespace eng3d {
     template<class U, class ...Args>
     void draw(const U& obj, Args&&... args) {
       obj.draw(*this, std::forward<Args>(args) ...);
+    }
+
+    Context context() {
+      return Context(this);
     }
   };
 } // namespace d3

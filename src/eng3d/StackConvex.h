@@ -68,9 +68,9 @@ namespace eng3d {
     static constexpr size_t size() { return N; }
 
 
-    template<class Pixel, class ...Args>
+    template<class ...Args>
     void draw(
-      Surface<Pixel>& surface,
+      auto& surface,
       Args&&... args
     ) const {
       auto it_min = begin();

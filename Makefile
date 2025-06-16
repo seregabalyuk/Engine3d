@@ -44,11 +44,11 @@ $(DIRLOGS):
 # debs
 $(DIRBUILD)/%.d: $(DIRTESTS)/%.cpp
 	@$(COMPILERCPP) -MM -MT $(patsubst $(DIRTESTS)/%.cpp,$(DIRBUILD)/%.o,$<) $< $(FLAGS) > $@
-	@$(COMPILERCPP) -MM -MT $(patsubst $(DIRTESTS)/%.cpp,$(DIRBUILD)/%.d,$<) $< $(FLAGS) >> $@
+	@$(COMPILERCPP) -MM -MT $(patsubst $(DIRTESTS)/%.cpp,$(DIRBUILD)/%.d,$<) $< $(FLAGS) > $@
 	@echo "$(STRDONE) \033[95m$@\033[0m"
 
 # other
-$(DIRBUILD)/%.o: $(DIRTESTS)/%.cpp
+$(DIRBUILD)/%.o: $(DIRTESTS)/%.cpp $(DIRBUILD)/%.d
 	@$(COMPILERCPP) -c $< -o $@ $(FLAGS)
 	@echo "$(STRDONE) \033[95m$@\033[0m"
 

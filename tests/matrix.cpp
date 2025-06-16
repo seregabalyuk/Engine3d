@@ -36,4 +36,10 @@ int main() {
   auto l = geom::WrapMatrix(p);
   l *= 3;
   std::cout << p[0][1] << '\n';
+
+  int a1[2] = {1, 2};
+  int a2[2] = {2, 3};
+  auto dd = &a2;
+  auto ff = geom::RowsWrapMatrix(a1, a2);
+  std::cout << geom::det(ff) << '\n';
 }

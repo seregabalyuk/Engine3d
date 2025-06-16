@@ -1,3 +1,5 @@
+#pragma once
+
 #include "../geom/Triangle.h"
 
 #include <fstream>

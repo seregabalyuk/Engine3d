@@ -2,11 +2,15 @@
 
 #include "matrix/DefaultContainer.h"
 #include "matrix/LinkContainer.h"
+#include "matrix/RowLCon.h"
 
 #include <utility>
 #include <cmath>
 
 namespace geom {
+  template<class, size_t>
+  struct Vector;
+
   template<
     class T, 
     size_t N, 
@@ -294,6 +298,24 @@ namespace geom { // functions
       m(0, 0) * m(1, 1)  -
       m(0, 1) * m(1, 0);
   }
+
+  template<class T, class Con>
+  Vector<T, 3> det(const Matrix<T, 3, 2, Con>& m) {
+    return {
+      m(1, 0) * m(2, 1) - m(2, 0) * m(1, 1),
+      m(2, 0) * m(0, 1) - m(0, 0) * m(2, 1),
+      m(0, 0) * m(1, 1) - m(0, 1) * m(1, 0)
+    };
+  }
+
+  template<class T, class Con>
+  Vector<T, 3> det(const Matrix<T, 2, 3, Con>& m) {
+    return {
+      m(0, 1) * m(1, 2) - m(0, 2) * m(1, 1),
+      m(0, 2) * m(1, 0) - m(0, 0) * m(1, 2),
+      m(0, 0) * m(1, 1) - m(1, 0) * m(0, 1)
+    };
+  }
 } // namespace geom
 
 
@@ -318,5 +340,35 @@ namespace geom {
       LinkCon::M,
       LinkCon
     >(con);
+  }
+
+  template<class T, class... Args>
+  auto RowsWrapMatrix(T& val, Args&&... args) {
+    using RowLCon = matrix::RowLCon<
+      T,
+      sizeof...(Args) + 1,
+      0
+    >;
+    return Matrix<
+      typename RowLCon::Type,
+      sizeof...(Args) + 1,
+      RowLCon::M,
+      RowLCon
+    >(val, std::forward<Args>(args)...);
+  }
+
+  template<class T, class... Args>
+  auto RowsWrapMatrix(const T& val, Args&&... args) {
+    using RowLCon = matrix::RowLCon<
+      T,
+      sizeof...(Args) + 1,
+      1
+    >;
+    return Matrix<
+      typename RowLCon::Type,
+      sizeof...(Args) + 1,
+      RowLCon::M,
+      RowLCon
+    >(val, std::forward<Args>(args)...);
   }
 } // namespace

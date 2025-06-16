@@ -17,7 +17,7 @@ int main() {
 
   SDL_Init(SDL_INIT_EVERYTHING);
   auto window = SDL_CreateWindow(
-    "loader",
+    "zBuffer",
     SDL_WINDOWPOS_UNDEFINED, 
     SDL_WINDOWPOS_UNDEFINED,
     1920, 
@@ -28,7 +28,7 @@ int main() {
   SDL_Event event;
   bool run = true;
 
-  auto surface = eng3d::buildSurface(screen);
+  auto surface = eng3d::buildSurfaceZbuffer<float>(screen);
   
 
   geom::Vector<int, 2> mousePos(0, 0);
@@ -42,7 +42,35 @@ int main() {
   
 
   auto obj = eng3d::loadOBJ<float>(filename);
-  auto buf = obj;
+  auto objbuf = obj;
+
+  std::vector<geom::Triangle<float, 3>> cube;
+  for (int i = 0; i < 3; ++ i) {
+    geom::Vector<float, 3> vec[4];
+    size_t j = 0;
+    for (auto x: std::vector{-1, 1}) {
+      for (auto y: std::vector{-1, 1}) {
+        vec[j][i] = 1;
+        vec[j][(i + 1) % 3] = x;
+        vec[j][(i + 2) % 3] = y;
+        ++ j;
+      }
+    }
+    cube.emplace_back(vec[0], vec[2], vec[1]);
+    cube.emplace_back(vec[1], vec[2], vec[3]);
+    j = 0;
+    for (auto x: std::vector{-1, 1}) {
+      for (auto y: std::vector{-1, 1}) {
+        vec[j][i] = -1;
+        vec[j][(i + 1) % 3] = x;
+        vec[j][(i + 2) % 3] = y;
+        ++ j;
+      }
+    }
+    cube.emplace_back(vec[0], vec[1], vec[2]);
+    cube.emplace_back(vec[2], vec[1], vec[3]);
+  }
+  auto cubebuf = cube;
 
 
   int state = 1;
@@ -63,6 +91,7 @@ int main() {
       }
     }
     float speed = 0.01;
+    bool isZbuf = false;
     { // camera
       geom::Vector<int, 2> next;
       SDL_GetMouseState(&next.x, &next.y);
@@ -128,6 +157,10 @@ int main() {
       if (keystates[SDL_SCANCODE_LSHIFT]) {
         camera.position.z -= speed;
       }
+
+      if (keystates[SDL_SCANCODE_Z]){
+        isZbuf = true;
+      }
     }
     geom::Matrix<float, 3, 3> rotor(0);
     rotor(0, 0) = rotor(1, 1) = rotor(2, 2) = 1;
@@ -136,38 +169,46 @@ int main() {
     
 
     SDL_FillRect(screen, NULL, 0);
-    
-    for (size_t i = 0; i < obj.size(); ++ i) {
-      obj[i] *= rotor;
-      buf[i] = camera.apply(obj[i]);
+
+    surface.reset(10000);
+
+   
+    {
+      for (size_t i = 0; i < obj.size(); ++ i) {
+        obj[i] *= rotor;
+        objbuf[i] = camera.apply(obj[i]);
+      }
+
+      geom::Vector light(1.f, 0.5f, -1.7f);
+      light *= camera.matrix;
+      light.normalize();
+      for (size_t i = 0; i < objbuf.size(); ++ i) {
+        auto normal = geom::cross(
+          objbuf[i].A - objbuf[i].B, 
+          objbuf[i].C - objbuf[i].B
+        );
+        normal.normalize();
+
+        float d = geom::dot(light, normal);
+        int color = std::max(0.f, d) * 127 + 128;
+        surface.draw(
+          camera,
+          objbuf[i],
+          eng3d::ContextOneColor(
+            SDL_Color(color, 0, 0)
+          )
+        );
+      }
+     
+        
     }
-
-    geom::Vector light(1.f, 0.5f, -1.7f);
-    light *= camera.matrix;
-    light.normalize();
-    std::sort(buf.begin(), buf.end(), [](auto a, auto b) {
-      float az = a.A.z + a.B.z + a.C.z;
-      float bz = b.A.z + b.B.z + b.C.z;
-      return az > bz;
-    });
-    for (size_t i = 0; i < buf.size(); ++ i) {
-      auto normal = geom::cross(
-        buf[i].A - buf[i].B, 
-        buf[i].C - buf[i].B
-      );
-      normal.normalize();
-
-      float d = geom::dot(light, normal);
-      int color = std::max(0.f, d) * 127 + 128;
-      surface.draw(
-        camera,
-        buf[i],
-        eng3d::ContextOneColor(
-          SDL_Color(color, 0, 0)
-        )
-      );
+    if (isZbuf) {
+      for (size_t i = 0; i < surface.width * surface.height; ++ i) {
+        float d = 1.f / (surface.ptrZ()[i] / 3 + 1.f);
+        
+        surface.ptr()[i] = SDL_Color(255 * d, 255 * d, 255 * d);
+      }
     }
-
     
     SDL_UpdateWindowSurface(window);
   }

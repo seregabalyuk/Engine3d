@@ -2,7 +2,7 @@
 
 #include <SDL2/SDL.h>
 
-#include "Surface.h"
+#include "SurfaceZbuffer.h"
 
 #define COLOR SDL_Color
 
@@ -12,6 +12,17 @@ namespace eng3d {
     const SDL_Surface* surface
   ) {
     return Surface<SDL_Color>(
+      static_cast<SDL_Color*>(surface->pixels), 
+      surface->w, 
+      surface->h
+    );
+  }
+
+  template<class Float>
+  auto buildSurfaceZbuffer(
+    const SDL_Surface* surface
+  ) {
+    return SurfaceZbuffer<SDL_Color, Float>(
       static_cast<SDL_Color*>(surface->pixels), 
       surface->w, 
       surface->h

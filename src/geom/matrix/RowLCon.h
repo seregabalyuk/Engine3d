@@ -1,21 +1,18 @@
 #pragma once
 #include <cstddef>
 #include "../../traits/ArrayStats.h"
-#include "../traits/GetFromPack.h"
+#include "../../traits/GetFromPack.h"
 
 
 namespace geom::matrix {
   template<
     class Row, 
     size_t N, 
-    bool isBool
-  > struct RowLCon: RowLCon<
-    Row, 
-    N - 1,
-    isBool
-  > {
+    bool IsConst
+  > struct RowLCon: 
+    RowLCon<Row, N - 1, IsConst> {
    private:
-    using _Parant = RowLCon<Row, N - 1, isBool>;
+    using _Parant = RowLCon<Row, N - 1, IsConst>;
    public:
     using Ptr = std::conditional_t<
       IsConst,
@@ -28,15 +25,17 @@ namespace geom::matrix {
       Row&
     >;
     Ptr rowEnd;
+    using Stats = traits::ArrayStats<Row>;
+    static constexpr size_t M = Stats::Size;
+    using Type = typename Stats::Type;
 
     template<class... Args>
-    RowLCon(Args&& args):
+    RowLCon(Args&&... args):
       _Parant(std::forward<Args>(args)...),
-      rowEnd(&traits::get<N - 1>(
+      rowEnd(&(traits::get<N - 1>(
         std::forward<Args>(args)...
-      )) 
+      ))) 
     {}
-    
   };
 } // namespace geom::matrix
 
@@ -44,19 +43,22 @@ namespace geom::matrix {
 namespace geom::matrix {
   template<
     class Row,
-    bool isBool
+    bool IsConst
   > struct RowLCon<
     Row, 
     0,
-    isBool
+    IsConst
   > {
     using Ptr = std::conditional_t<
       IsConst,
       const Row*,
       Row*
     >;
+    using Stats = traits::ArrayStats<Row>;
+    static constexpr size_t M = Stats::Size;
+    using Type = typename Stats::Type;
     template<class... Args>
-    RowLCon(Args&& args) {}
+    RowLCon(Args&&... args) {}
 
     Ptr* begin() { 
       return reinterpret_cast<Ptr*>(this);
@@ -66,12 +68,12 @@ namespace geom::matrix {
       return reinterpret_cast<const Ptr*>(this);
     }
 
-    auto& operator()(size_t i, size_t j) {
-      return (begin()[i])->[j];
+    Type& operator()(size_t i, size_t j) {
+      return (*begin()[i])[j];
     }
 
-    const auto& operator()(size_t i, size_t j) const {
-      return (begin()[i])->[j];
+    const Type& operator() (size_t i, size_t j) const {
+      return (*begin()[i])[j];
     }
   };
 } // namespace geom::matrix

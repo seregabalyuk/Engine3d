@@ -91,6 +91,8 @@ namespace geom {
     const Point& operator [](size_t i) const  {
       return points[i];
     }
+
+    static constexpr size_t size() { return 3; }
   };
 } // namespace geom 
 

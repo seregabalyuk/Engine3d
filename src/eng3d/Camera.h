@@ -2,6 +2,8 @@
 #include "../geom/Triangle.h"
 #include "StackConvex.h"
 #include "../geom/Line.h"
+#include "ContextDepth.h"
+#include "SurfaceZbuffer.h"
 
 namespace eng3d {
   template<class Float = float>
@@ -138,45 +140,89 @@ namespace eng3d {
       return out;
     }
 
-    template<class Pixel,class...Args>
+    template<class Pixel>
     static void draw(
-      Surface<Pixel>& surface,
+      SurfaceZbuffer<Pixel, Float>& surface,
       const Triangle& triangle,
-      Args&&... args
+      auto&& context
     ) {
-      geom::Vector<float, 2> points[4];
-      int count = project(triangle, points);
+      geom::Vector<Float, 2> points[4];
+      size_t count = project(triangle, points);
+      if (count == 0) return;
+
+      geom::Vector shift(1.f, 1.f);
+      float w = surface.width / 2;
+      float h = surface.height / 2;
+      for (size_t i = 0; i < count; ++ i) {
+        points[i] += shift;
+        points[i].x *= w;
+        points[i].y *= h;
+      }
+      ContextDepth depth(
+        triangle, 
+        surface.width, 
+        surface.height, 
+        context
+      );
+
       if (count == 3) {
         auto& convex = reinterpret_cast<
-          eng3d::StackConvex<float, 3>&
+          eng3d::StackConvex<Float, 3>&
         >(points);
-        convex += geom::Vector(1.f, 1.f);
-        float w = surface.width / 2;
-        float h = surface.height / 2;
-        for(auto& point: convex) {
-          point.x *= w;
-          point.y *= h;
-        }
         convex.normalizeLight();      
         surface.draw(
           convex,
-          std::forward<Args>(args)...
+          depth
         );
       } else if (count == 4) {
         auto& convex = reinterpret_cast<
-          eng3d::StackConvex<float, 4>&
+          eng3d::StackConvex<Float, 4>&
         >(points);
-        convex += geom::Vector(1.f, 1.f);
-        float w = surface.width / 2;
-        float h = surface.height / 2;
-        for(auto& point: convex) {
-          point.x *= w;
-          point.y *= h;
-        }
         convex.normalizeLight();      
         surface.draw(
           convex,
-          std::forward<Args>(args)...
+          depth
+        );
+      }
+    }
+
+
+    template<class Pixel>
+    static void draw(
+      Surface<Pixel>& surface,
+      const Triangle& triangle,
+      auto&& context
+    ) {
+      geom::Vector<Float, 2> points[4];
+      size_t count = project(triangle, points);
+      if (count == 0) return;
+
+      geom::Vector shift(1.f, 1.f);
+      float w = surface.width / 2;
+      float h = surface.height / 2;
+      for (size_t i = 0; i < count; ++ i) {
+        points[i] += shift;
+        points[i].x *= w;
+        points[i].y *= h;
+      }
+
+      if (count == 3) {
+        auto& convex = reinterpret_cast<
+          eng3d::StackConvex<Float, 3>&
+        >(points);
+        convex.normalizeLight();      
+        surface.draw(
+          convex,
+          context
+        );
+      } else if (count == 4) {
+        auto& convex = reinterpret_cast<
+          eng3d::StackConvex<Float, 4>&
+        >(points);
+        convex.normalizeLight();      
+        surface.draw(
+          convex,
+          context
         );
       }
     }
