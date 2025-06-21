@@ -132,15 +132,15 @@ namespace eng3d {
           );
           ++ it_right;
         }
-        y_from = y_to;
+        y_from = std::max(y_to, y_from);
       }
       #ifdef DEBUG_STACKCONVEX
         int h = 2;
         for (auto& point: *this) {
           int x_from = std::max((int)point.x - h, 0);
-          int x_to = std::min((int)point.x + h, surface.width);
+          int x_to = std::min((int)point.x + h, (int)surface.width);
           int y_from = std::max((int)point.y - h, 0);
-          int y_to = std::min((int)point.y + h, surface.height);
+          int y_to = std::min((int)point.y + h, (int)surface.height);
           for (int y = y_from; y < y_to; ++ y)
           for (int x = x_from; x < x_to; ++ x)
             surface(x, y) = COLOR(0, 0, 255);

@@ -1,4 +1,4 @@
-//#define DEBUG_STACKCONVEX
+#define DEBUG_STACKCONVEX
 #define DEBUG_TRAPEZOID
 #include "../src/eng3d/SDL.h"
 #include "../src/eng3d/StackConvex.h"
@@ -29,7 +29,7 @@ int main() {
     geom::Vector(320.f, 50),
     geom::Vector(420.f, 100),
     geom::Vector(370.f, 280),
-    geom::Vector(270.f, 250),
+    geom::Vector(350.f, 140),
     geom::Vector(220.f, 110)
   };
   
@@ -54,7 +54,7 @@ int main() {
         SDL_Color(255, 0, 0)
       ) 
     );
-    geom::Vector center(520.f, 240);
+    geom::Vector center(300.f, 240);
     float angle = 0.0003;
     float sin1 = std::sin(angle);
     float cos1 = std::cos(angle);
@@ -64,12 +64,16 @@ int main() {
     mat(1, 0) = sin1; 
     mat(1, 1) = cos1;
     
+    auto keystates = SDL_GetKeyboardState(NULL);
+    if (keystates[SDL_SCANCODE_SPACE]) {
+      convex -= center;
+      wrap *= mat;
+      convex += center;
+      convex.normalize();
+    }
     
-    convex -= center;
-    wrap *= mat;
-    convex += center;
 
-    convex.normalize();
+    
     
   
     /*std::this_thread::sleep_for(
