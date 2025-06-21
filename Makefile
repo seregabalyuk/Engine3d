@@ -24,9 +24,6 @@ STRTESTED = \033[92m - Tested:\033[0m
 all: $(DIRBUILD) $(DIRBIN) $(DIRLOGS) $(BINFILES)
 
 test: all $(LOGFILES)
-	
-clean:
-	rm -r $(DIRBUILD)
 
 
 -include $(DEPFILES)
@@ -58,6 +55,7 @@ $(DIRBIN)/%.exe: $(DIRBUILD)/%.o
 
 #test
 $(DIRLOGS)/%.txt: $(DIRBIN)/%.exe 
+	@echo "\033[95m - Start tested:\033[0m $<"
 	@$< >> $@
 	@touch $@
 	@echo "$(STRTESTED) $<"

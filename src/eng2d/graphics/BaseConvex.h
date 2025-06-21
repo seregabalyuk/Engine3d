@@ -1,24 +1,17 @@
 #pragma once
+
 #include "Trapezoid.h"
-#include <initializer_list>
 
 
-namespace eng3d {
-  template<class T, size_t N>
-  struct StackConvex: StackConvex<T, N - 1> {
+namespace eng2d {
+  template<class T>
+  struct BaseConvex {
     using Point = geom::Vector<T, 2>;
-    using StackConvex<T, N - 1>::begin;
-    Point back;
+    
+    BaseConvex() = default;
 
-    StackConvex() = default;
-
-    StackConvex(std::initializer_list<Point> points) {
-      auto it = points.begin();
-      for (int i = 0; i < N; ++ i) {
-        begin()[i] = *it;
-        ++ it;
-      }
-    }
+    BaseConvex(Point* array, size_t size):
+      _array(array), _size(size) {}
 
     void normalize() {
       auto it_min = begin();
@@ -31,7 +24,7 @@ namespace eng3d {
       std::reverse(it_min, end());
       std::reverse(begin(), it_min);
       // Need delete
-      if (N >= 3) {
+      if (_size >= 3) {
         auto& A = begin()[0];
         auto& B = begin()[1];
         auto& C = begin()[2];
@@ -53,19 +46,31 @@ namespace eng3d {
       std::reverse(begin(), it_min);
     }
 
+    Point* begin() {
+      return _array;
+    }
+
+    const Point* begin() const {
+      return _array;
+    }
+
+    const Point* cbegin() const {
+      return _array;
+    }
+
     Point* end() {
-      return begin() + N;
+      return begin() + _size;
     }
 
     const Point* end() const {
-      return begin() + N;
+      return begin() + _size;
     }
 
     const Point* cend() const {
-      return begin() + N;
+      return begin() + _size;
     }
 
-    static constexpr size_t size() { return N; }
+    size_t size() { return _size; }
 
 
     template<class ...Args>
@@ -99,7 +104,7 @@ namespace eng3d {
         }
       }
       geom::Line left(
-        geom::to<int>(it_min[N-1]), 
+        geom::to<int>(it_min[_size-1]), 
         geom::to<int>(it_min[0])
       );
       geom::Line right(
@@ -107,7 +112,7 @@ namespace eng3d {
         geom::to<int>(it_min[0])
       );
       auto y_from = it_min->y;
-      auto it_left = it_min + (N - 1);
+      auto it_left = it_min + (_size - 1);
       auto it_right = it_min + 1;
       
 
@@ -148,7 +153,7 @@ namespace eng3d {
       #endif
     }
 
-    StackConvex& operator += (
+    BaseConvex& operator += (
       const Point& move
     ) & {
       for (auto& point: (*this)) {
@@ -157,7 +162,7 @@ namespace eng3d {
       return *this;
     }
 
-    StackConvex& operator -= (
+    BaseConvex& operator -= (
       const Point& move
     ) & {
       for (auto& point: (*this)) {
@@ -165,36 +170,9 @@ namespace eng3d {
       }
       return *this;
     }
+
+   private:
+    size_t _size = 0;
+    Point* _array = nullptr;
   };
-} // namespace eng3d
-
-
-namespace eng3d {
-  template<class T>
-  struct StackConvex<T, 0> {
-    using Point = geom::Vector<T, 2>;
-
-    template<class ...Args>
-    StackConvex(Args&&... args) {}
-
-    Point* begin() {
-      return reinterpret_cast<Point*>(this);
-    }
-
-    const Point* begin() const {
-      return reinterpret_cast<const Point*>(this);
-    }
-
-    const Point* cbegin() const {
-      return reinterpret_cast<const Point*>(this);
-    }
-
-    Point& operator [](size_t i) {
-      return begin()[i];
-    }
-
-    const Point& operator [](size_t i) const {
-      return begin()[i];
-    }
-  };
-} // namespace eng3d
+} // namespace eng2d

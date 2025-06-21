@@ -1,39 +1,42 @@
 #pragma once
+
 #include <utility>
 
 
-namespace eng3d {
+namespace eng2d {
   template<class T>
   class Surface {
     class Context {
-      Surface* surface;
-      T* iter_y;
-      T* iter_x;
+      Surface* _surface;
+      T* _iterY;
+      T* _iterX;
      public:
       Context(Surface* surface):
-        surface(surface) {}
+        _surface(surface) {}
 
       void setY(size_t y) & {
-        iter_y = surface->ptr() + y * surface->width;
+        _iterY = _surface->ptr() + y * _surface->width;
       }
       
       void setX(size_t x) & {
-        iter_x = iter_y + x;
+        _iterX = _iterY + x;
       }
 
       void incY() & {
-        iter_y += surface->width;
+        _iterY += _surface->width;
       }
 
       void incX() & {
-        ++ iter_x;
+        ++ _iterX;
       }
       
-      void set(auto& context) & {
-        *iter_x = context.getColor();
+      void set(auto&& context) & {
+        *_iterX = context.getColor();
       }
     };
    public:
+   // usings
+    using Pixel = T;
    // members
     size_t width;
     size_t height;
