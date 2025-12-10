@@ -1,5 +1,5 @@
 #pragma once
-#include "../geom/Triangle.h"
+#include "../geom.h"
 
 namespace eng3d {
   template<class T, class Context>

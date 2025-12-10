@@ -1,11 +1,6 @@
 #pragma once
 
-#include "Vector.h"
-
-namespace geom {
-  template<class T, size_t N>
-  struct Line;
-} // namespace geom
+#include "Declaration.h"
 
 
 namespace geom { // with 2 dimentions

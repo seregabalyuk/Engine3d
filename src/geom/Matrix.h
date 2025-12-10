@@ -4,13 +4,13 @@
 #include "matrix/LinkContainer.h"
 #include "matrix/RowLCon.h"
 
+#include "Declaration.h"
+
 #include <utility>
 #include <cmath>
 
-namespace geom {
-  template<class, size_t>
-  struct Vector;
 
+namespace geom {
   template<
     class T, 
     size_t N, 
@@ -282,7 +282,7 @@ namespace geom { // operators
 
 namespace geom { // functions
   template<class T, class Con>
-  auto det(const Matrix<T, 3, 3, Con>& m) {
+  constexpr auto det(const Matrix<T, 3, 3, Con>& m) {
     return 
       m(0, 0) * m(1, 1) * m(2, 2) +
       m(0, 1) * m(1, 2) * m(2, 0) +
@@ -293,14 +293,14 @@ namespace geom { // functions
   }
 
   template<class T, class Con>
-  auto det(const Matrix<T, 2, 2, Con>& m) {
+  constexpr auto det(const Matrix<T, 2, 2, Con>& m) {
     return 
       m(0, 0) * m(1, 1)  -
       m(0, 1) * m(1, 0);
   }
 
   template<class T, class Con>
-  Vector<T, 3> det(const Matrix<T, 3, 2, Con>& m) {
+  constexpr Vector<T, 3> det(const Matrix<T, 3, 2, Con>& m) {
     return {
       m(1, 0) * m(2, 1) - m(2, 0) * m(1, 1),
       m(2, 0) * m(0, 1) - m(0, 0) * m(2, 1),
@@ -309,7 +309,7 @@ namespace geom { // functions
   }
 
   template<class T, class Con>
-  Vector<T, 3> det(const Matrix<T, 2, 3, Con>& m) {
+  constexpr Vector<T, 3> det(const Matrix<T, 2, 3, Con>& m) {
     return {
       m(0, 1) * m(1, 2) - m(0, 2) * m(1, 1),
       m(0, 2) * m(1, 0) - m(0, 0) * m(1, 2),
@@ -321,7 +321,7 @@ namespace geom { // functions
 
 namespace geom {
   template<class Con>
-  auto WrapMatrix(Con& con) {
+  constexpr auto WrapMatrix(Con& con) {
     using LinkCon = matrix::LinkContainer<Con, 0>;
     return Matrix<
       typename LinkCon::Type,
@@ -332,7 +332,7 @@ namespace geom {
   }
 
   template<class Con>
-  auto WrapMatrix(const Con& con) {
+  constexpr auto WrapMatrix(const Con& con) {
     using LinkCon = matrix::LinkContainer<Con, 1>;
     return Matrix<
       typename LinkCon::Type,
@@ -343,7 +343,7 @@ namespace geom {
   }
 
   template<class T, class... Args>
-  auto RowsWrapMatrix(T& val, Args&&... args) {
+  constexpr auto RowsWrapMatrix(T& val, Args&&... args) {
     using RowLCon = matrix::RowLCon<
       T,
       sizeof...(Args) + 1,
@@ -358,7 +358,7 @@ namespace geom {
   }
 
   template<class T, class... Args>
-  auto RowsWrapMatrix(const T& val, Args&&... args) {
+  constexpr auto RowsWrapMatrix(const T& val, Args&&... args) {
     using RowLCon = matrix::RowLCon<
       T,
       sizeof...(Args) + 1,

@@ -1,7 +1,6 @@
 #pragma once
-#include "../geom/Triangle.h"
+#include "../geom.h"
 #include "StackConvex.h"
-#include "../geom/Line.h"
 #include "ContextDepth.h"
 #include "SurfaceZbuffer.h"
 

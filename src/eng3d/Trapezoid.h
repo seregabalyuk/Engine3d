@@ -1,5 +1,5 @@
 #pragma once
-#include "../geom/Line.h"
+#include "../geom.h"
 
 #include <algorithm>
 

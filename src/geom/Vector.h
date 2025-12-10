@@ -3,9 +3,10 @@
 #include "Axis.h"
 #include "../traits/GetFromPack.h"
 #include "../math/Zero.h"
-#include "Matrix.h"
+#include "Declaration.h"
 
 #include <type_traits>
+#include <cmath>
 
 
 namespace geom { // Vector<T, N>
@@ -21,27 +22,27 @@ namespace geom { // Vector<T, N>
     using Vector<T, N - 1>::begin;
     using Vector<T, N - 1>::cbegin;
    // constructors
-    Vector(const Vector& other): 
+    constexpr Vector(const Vector& other): 
       _Parant(other), 
-      _Axis(other.back)
+      _Axis(other.back())
     {}
 
-    Vector(Vector&& other): 
+    constexpr Vector(Vector&& other): 
       _Parant(std::move(other)), 
-      _Axis(std::move(other.back))
+      _Axis(std::move(other.back()))
     {}
 
     template<class U, class Func>
-    Vector(
+    constexpr Vector(
       const Vector<U, N>& vec, 
       Func func
     ):_Parant(vec, func),
-     _Axis(Func::function(vec.back)) {}
+     _Axis(Func::function(vec.back())) {}
 
-    Vector() {}
+    constexpr Vector() {}
 
     template<class... Args>
-    Vector(const T& val,Args&&... args):
+    constexpr Vector(const T& val,Args&&... args):
       _Parant(
         val, 
         std::forward<Args>(args)...
@@ -53,7 +54,7 @@ namespace geom { // Vector<T, N>
     {}
 
     template<class... Args>
-    Vector(T&& val,Args&&... args):
+    constexpr Vector(T&& val,Args&&... args):
       _Parant(
         std::move(val), 
         std::forward<Args>(args)...
@@ -67,19 +68,19 @@ namespace geom { // Vector<T, N>
     
    // operators =
     Vector& operator +=(const Vector& other) & {
-      back += other.back;
+      back() += other.back();
       parant() += other;
       return *this;
     }
 
     Vector& operator -=(const Vector& other) & {
-      back -= other.back;
+      back() -= other.back();
       parant() -= other;
       return *this;
     }
 
     Vector& operator *=(const T& scalar) & {
-      back *= scalar;
+      back() *= scalar;
       parant() *= scalar;
       return *this;
     }
@@ -101,25 +102,25 @@ namespace geom { // Vector<T, N>
     }
 
     Vector& rev_mul(const T& scalar) & {
-      back = scalar * back;
+      back() = scalar * back();
       parant().rev_mul(scalar);
       return *this;
     }
 
     Vector& operator /=(const T& scalar) & {
-      back /= scalar;
+      back() /= scalar;
       parant() /= scalar;
       return *this;
     }
   
     Vector& operator =(const Vector& other) & {
-      back = other.back;
+      back() = other.back();
       parant() = other;
       return *this;
     }
 
     Vector& operator =(Vector&& other) & {
-      back = std::move(other.back);
+      back() = std::move(other.back());
       parant() = std::move(other);
       return *this;
     }
@@ -127,27 +128,27 @@ namespace geom { // Vector<T, N>
    // functions
     static constexpr size_t size() { return N; }
 
-    T* end() { return begin() + size(); }
-    const T* end() const { return begin() + size(); }
-    const T* cend() const { return cbegin() + size(); }
+    constexpr T* end() { return begin() + size(); }
+    constexpr const T* end() const { return begin() + size(); }
+    constexpr const T* cend() const { return cbegin() + size(); }
     
-    _Parant& parant() & {
+    constexpr _Parant& parant() & {
       return *this;
     }
 
-    const _Parant& parant() const & {
+    constexpr const _Parant& parant() const & {
       return *this;
     }
 
-    T sqrlength() const {
+    constexpr T sqrlength() const {
       return dot(*this, *this);
     }
 
-    auto length() const {
+    constexpr auto length() const {
       return std::sqrt(sqrlength());
     } 
 
-    Vector& normalize() & {
+    constexpr Vector& normalize() & {
       (*this) /= length();
       return *this;
     }
@@ -159,36 +160,36 @@ namespace geom { // Vector<T, 0>
   template<class T>
   struct Vector<T, 0> {
     template<class... Args>
-    Vector(Args&& ...) {}
+    constexpr Vector(Args&& ...) {}
 
-    Vector operator +=(const Vector&) & { return *this; }
-    Vector operator -=(const Vector&) & { return *this; }
-    Vector operator *=(const T&) & { return *this; }
-    Vector operator /=(const T&) & { return *this; }
-    Vector operator =(const Vector&) & { return *this; }
-    Vector operator =(Vector&&) & { return *this; }
+    constexpr Vector operator +=(const Vector&) & { return *this; }
+    constexpr Vector operator -=(const Vector&) & { return *this; }
+    constexpr Vector operator *=(const T&) & { return *this; }
+    constexpr Vector operator /=(const T&) & { return *this; }
+    constexpr Vector operator =(const Vector&) & { return *this; }
+    constexpr Vector operator =(Vector&&) & { return *this; }
 
 
-    T& operator[] (size_t id) {
+    constexpr T& operator[] (size_t id) {
       return begin()[id];
     }
-    const T& operator[] (size_t id) const {
+    constexpr const T& operator[] (size_t id) const {
       return begin()[id];
     }
 
-    T* begin() { 
+    constexpr T* begin() { 
       return reinterpret_cast<T*>(this); 
     }
 
-    const T* cbegin() const { 
+    constexpr const T* cbegin() const { 
       return reinterpret_cast<const T*>(this); 
     }
 
-    const T* begin() const { 
+    constexpr const T* begin() const { 
       return reinterpret_cast<const T*>(this); 
     }
 
-    auto sqrlength() const {
+    constexpr auto sqrlength() const {
       return dot(*this, *this);
     }
   };
@@ -197,7 +198,7 @@ namespace geom { // Vector<T, 0>
 
 namespace geom { // operators +-*/
   template<class T, size_t N>
-  Vector<T, N> operator + (
+  constexpr Vector<T, N> operator + (
     const Vector<T, N>& left, 
     const Vector<T, N>& right
   ) {
@@ -206,7 +207,7 @@ namespace geom { // operators +-*/
   }
 
   template<class T, size_t N>
-  Vector<T, N> operator - (
+  constexpr Vector<T, N> operator - (
     const Vector<T, N>& left, 
     const Vector<T, N>& right
   ) {
@@ -215,7 +216,7 @@ namespace geom { // operators +-*/
   }
 
   template<class T, size_t N>
-  Vector<T, N> operator * (
+  constexpr Vector<T, N> operator * (
     const Vector<T, N>& left, 
     const T& right
   ) {
@@ -224,7 +225,7 @@ namespace geom { // operators +-*/
   }
 
   template<class T, size_t N>
-  Vector<T, N> operator * (
+  constexpr Vector<T, N> operator * (
     const T& left, 
     const Vector<T, N>& right
   ) {
@@ -233,7 +234,7 @@ namespace geom { // operators +-*/
   }
 
   template<class T, size_t N, size_t M, class Con>
-  Vector<T, M> operator *(
+  constexpr Vector<T, M> operator *(
     const Vector<T, N>& left,
     const Matrix<T, N, M, Con>& right
   ) {
@@ -248,7 +249,7 @@ namespace geom { // operators +-*/
   }
 
   template<class T, size_t N, size_t M, class Con>
-  Vector<T, N> operator *(
+  constexpr Vector<T, N> operator *(
     const Matrix<T, N, M, Con>& left,
     const Vector<T, M>& right
   ) {
@@ -264,7 +265,7 @@ namespace geom { // operators +-*/
 
 
   template<class T, size_t N>
-  Vector<T, N> operator / (
+  constexpr Vector<T, N> operator / (
     const Vector<T, N>& left, 
     const T& right
   ) {
@@ -288,9 +289,9 @@ namespace geom { // functions
   
 
   template<class T, class U, size_t N>
-  Vector<T, N> to(const Vector<U, N>& vec) {
+  constexpr Vector<T, N> to(const Vector<U, N>& vec) {
     struct Preob {
-      static T function(const U& in) { return in; }
+      static constexpr T function(const U& in) { return in; }
     };
     return Vector<T, N>(
       vec, 
@@ -300,7 +301,7 @@ namespace geom { // functions
 
 
   template<class T>
-  math::Zero dot(
+  constexpr math::Zero dot(
     const Vector<T, 0>& left, 
     const Vector<T, 0>& right
   ) {
@@ -308,16 +309,16 @@ namespace geom { // functions
   }
 
   template<class T, size_t N>
-  T dot(
+  constexpr T dot(
     const Vector<T, N>& left, 
     const Vector<T, N>& right
   ) {
     return dot(left.parant(), right.parant()) 
-      + left.back * right.back;
+      + left.back() * right.back();
   }
 
   template<class T>
-  T cross(
+  constexpr T cross(
     const Vector<T, 2>& left, 
     const Vector<T, 2>& right
   ) {
@@ -325,7 +326,7 @@ namespace geom { // functions
   }
 
   template<class T>
-  auto cross(
+  constexpr auto cross(
     const Vector<T, 3>& left, 
     const Vector<T, 3>& right
   ) {

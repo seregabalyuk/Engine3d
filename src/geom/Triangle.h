@@ -1,5 +1,6 @@
 #pragma once
-#include "Vector.h"
+#include "Declaration.h"
+
 
 namespace geom {
   template<class T, size_t N>
